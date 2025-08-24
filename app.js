@@ -1,13 +1,15 @@
 const express = require("express");
 const app = express();
 const database = require("./config/db");
-database.connectDB();
 const PORT = process.env.PORT || 3000;
 const routes = require("./routes/index");
 const cors = require("cors");
+const { v2: cloudinary } = require("cloudinary");
 
 // Middleware
+database.connectDB();
 app.use(express.json());
+
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3300",
@@ -21,8 +23,13 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+cloudinary.config({
+  api_key: process.env.CLOUDINARY_APIKEY,
+  cloud_name: process.env.CLOUDINARY_CLOUDNAME,
+  api_secret: process.env.CLOUDINARY_SECRETKEY,
+});
 
-// Sample route
+// routes
 app.use("/api/v1", routes);
 
 // Start the server

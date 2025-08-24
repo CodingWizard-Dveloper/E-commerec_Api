@@ -1,9 +1,11 @@
 const { generateToken } = require("../config/Tokens");
 const { User } = require("../model/auth.model");
 const bcrypt = require("bcryptjs");
+const { v2: cloudinary } = require("cloudinary");
+const fs = require("fs");
 
 const createUser = async (credentials) => {
-  const { userName, password, email } = credentials;
+  const { userName, password, email, profileImage } = credentials;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -23,7 +25,20 @@ const createUser = async (credentials) => {
 
   newUser.accessToken = Token;
 
+  const cloudResult = await cloudinary.uploader.upload(profileImage.path);
+
+  newUser.avatar = cloudResult?.secure_url;
+
   await newUser.save();
+
+  // Delete the temporary file after successful upload to Cloudinary
+  fs.unlink(profileImage.path, (err) => {
+    if (err) {
+      console.error("Error deleting temporary file:", err);
+    } else {
+      console.log("Temporary file deleted successfully:", profileImage.path);
+    }
+  });
 
   return { status: 200, response: { message: "User Created", token: Token } };
 };

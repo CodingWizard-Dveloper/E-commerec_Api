@@ -2,12 +2,14 @@ const { authService } = require("../services");
 
 const createUser = async (req, res) => {
   const { userName, password, email } = req.body;
+  const profileImage = req.file
 
   try {
     const { response, status } = await authService.createUser({
       userName,
       password,
       email,
+      profileImage	
     });
     res.status(status).json(response);
   } catch (error) {
