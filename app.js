@@ -16,6 +16,29 @@ const allowedOrigins = [
   "http://localhost:3000",
 ];
 
+app.use((req, res, next) => {
+  const start = Date.now();
+
+  const originalSend = res.send;
+
+  res.send = function (body) {
+    res.locals.body = body;
+    return originalSend.call(this, body);
+  };
+
+  // listen for response to finish
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    console.log(
+      `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} → ${
+        res.statusCode
+      } | Message: ${res.locals.body} (${duration}ms) \n`
+    );
+  });
+
+  next();
+});
+
 app.use(
   cors({
     origin: allowedOrigins,

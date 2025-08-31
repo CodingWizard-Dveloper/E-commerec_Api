@@ -71,12 +71,7 @@ const loginUser = async (credentials) => {
       };
     }
 
-    // Debug logs to check password comparison
-    console.log("Input password:", password);
-    console.log("Stored hash:", isUser.password);
-
     const verifyPass = await bcrypt.compare(password, isUser.password);
-    console.log("Password verification result:", verifyPass);
 
     if (!verifyPass) {
       return {
