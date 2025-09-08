@@ -2,6 +2,8 @@ const {
   getUser,
   createUser,
   login,
+  createStore,
+  getStore,
 } = require("../../validation/auth.validation");
 const validator = require("../../config/validator");
 const { authenticateToken } = require("../../config/Tokens");
@@ -20,4 +22,12 @@ router
   )
   .patch(validator(login), authController.loginUser);
 
+router
+  .route("/workspace")
+  .post(
+    authenticateToken,
+    upload.single("storeImage"),
+    validator(createStore),
+    authController.createStore
+  )
 module.exports = router;

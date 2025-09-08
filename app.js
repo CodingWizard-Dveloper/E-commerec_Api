@@ -30,9 +30,11 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     console.log(
-      `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} → ${
+      `[${new Date().toISOString()}] ${req.method}:  ${req.originalUrl} → ${
         res.statusCode
-      } | Message: ${res.locals.body} (${duration}ms) \n`
+      } - ${
+        res.statusCode >= 400 ? `Message: ${res.locals.body}` : ""
+      } (${duration}ms)`
     );
   });
 

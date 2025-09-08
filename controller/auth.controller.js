@@ -2,14 +2,14 @@ const { authService } = require("../services");
 
 const createUser = async (req, res) => {
   const { userName, password, email } = req.body;
-  const profileImage = req.file
+  const profileImage = req.file;
 
   try {
     const { response, status } = await authService.createUser({
       userName,
       password,
       email,
-      profileImage	
+      profileImage,
     });
     res.status(status).json(response);
   } catch (error) {
@@ -28,13 +28,32 @@ const getUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  const {status, data} = await authService.loginUser({email, password})
+  const { status, data } = await authService.loginUser({ email, password });
 
-  res.status(status).json(data)
+  res.status(status).json(data);
+};
+
+const createStore = async (req, res) => {
+  const { storeName, description, ownerId } = req.body;
+  const storeImage = req.file;
+
+  try {
+    const { response, status } = await authService.createStore({
+      storeName,
+      description,
+      ownerId,
+      storeImage,
+    });
+
+    res.status(status).json(response);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 module.exports = {
   createUser,
   getUser,
-  loginUser
+  loginUser,
+  createStore,
 };

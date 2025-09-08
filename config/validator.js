@@ -18,7 +18,7 @@ const validator = (schema) => (req, res, next) => {
     .prefs({ errors: { label: "key" }, abortEarly: false })
     .validate(object);
 
-  if (error) {
+    if (error) {
     const errorMessage = error.details
       .map((details) => details.message)
       .join(", ");

@@ -1,5 +1,5 @@
 const { generateToken } = require("../config/Tokens");
-const { User } = require("../model/auth.model");
+const { User, Store } = require("../model/auth.model");
 const bcrypt = require("bcryptjs");
 const { v2: cloudinary } = require("cloudinary");
 const fs = require("fs");
@@ -46,16 +46,23 @@ const createUser = async (credentials) => {
 const getUser = async (userId) => {
   const myUser = await User.findById(userId);
 
-  if (myUser) {
+  if (!myUser) {
     return {
-      status: 201,
-      data: { message: "User exists", user: myUser },
+      status: 400,
+      data: { message: "An error made", user: null },
     };
   }
 
+  const userToSend = myUser.toObject();
+  delete userToSend.password;
+  const userStore = await Store.findById(userToSend.storeId);
+  if (userStore) {
+    userToSend.store = await Store.findById(userToSend.storeId);
+    delete userToSend.storeId;
+  }
   return {
-    status: 400,
-    data: { message: "An error made", user: null },
+    status: 201,
+    data: { message: "User exists", user: userToSend },
   };
 };
 
@@ -103,8 +110,60 @@ const loginUser = async (credentials) => {
   }
 };
 
+const createStore = async (data) => {
+  try {
+    const { storeName, description, ownerId, storeImage } = data;
+
+    const existingStore = await Store.find({ storeName });
+    const existingOwner = await User.findById(ownerId);
+
+    if (existingOwner.storeId) {
+      return {
+        response: { message: "You are already the owner of a store" },
+        status: 401,
+      };
+    }
+
+    if (existingStore.length) {
+      return {
+        response: { message: "Store with this name already exists" },
+        status: 409,
+      };
+    }
+
+    const newStore = await Store.create({
+      storeName,
+      ownerId,
+      description,
+    });
+
+    const cloudResult = await cloudinary.uploader.upload(storeImage.path);
+
+    newStore.storeImage = cloudResult?.secure_url;
+
+    await newStore.save();
+
+    const updatedUser = await User.findByIdAndUpdate(
+      ownerId,
+      { $set: { storeId: newStore._id } },
+      { new: true, runValidators: true }
+    );
+
+    return {
+      response: { message: "Store created successfully", user: updatedUser },
+      status: 200,
+    };
+  } catch (e) {
+    return {
+      response: { message: `Unknown Error: ${e.message}` },
+      status: 400,
+    };
+  }
+};
+
 module.exports = {
   createUser,
   getUser,
+  createStore,
   loginUser,
 };

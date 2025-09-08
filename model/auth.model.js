@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const { required } = require("joi");
 
 const User = new mongoose.Schema({
   userName: { type: String, required: true, unique: false },
@@ -10,6 +9,17 @@ const User = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now, required: false },
   accessToken: { type: String, required: false, unique: false },
   avatar: { type: String, required: false, unique: false },
+  role: { type: String, enum: ["admin", "user"], default: "user" },
+  storeId: { type: mongoose.Schema.Types.ObjectId, ref: "Store" },
+});
+
+const store = new mongoose.Schema({
+  storeName: { type: String, required: true },
+  ownerId: { type: String, required: true, unique: true },
+  storeImage: { type: String, required: false },
+  createdAt: { type: Date, default: Date().now, required: false },
+  updatedAt: { type: Date, default: Date().now, required: false },
+  description: { type: String, required: true },
 });
 
 User.pre("save", async function (next) {
@@ -21,7 +31,9 @@ User.pre("save", async function (next) {
 });
 
 const UserModel = mongoose.model("users", User);
+const storeModel = mongoose.model("stores", store);
 
 module.exports = {
   User: UserModel,
+  Store: storeModel,
 };
