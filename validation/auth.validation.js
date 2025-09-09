@@ -10,7 +10,7 @@ const getUser = {
 
 const createUser = {
   body: joi.object().keys({
-    userName: joi.string().min(3).max(30).required(),
+    userName: joi.string().min(2).max(20).required(),
     password: joi.string().min(6).max(100).required(),
     email: joi.string().email().required(),
     role: joi.string().valid("storeOwner", "client").default("client"),
@@ -37,9 +37,20 @@ const createStore = {
   headers: authHeader,
 };
 
+const changeUser = {
+  body: joi.object().keys({
+    email: joi.string().email().optional(),
+    userName: joi.string().min(2).max(20).optional(),
+    password: joi.string().min(6).max(100).optional(),
+    profileImage: joi.string().optional(),
+  }),
+  headers: authHeader,
+};
+
 module.exports = {
   getUser,
   createUser,
   login,
   createStore,
+  changeUser,
 };

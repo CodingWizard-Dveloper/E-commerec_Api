@@ -3,7 +3,7 @@ const {
   createUser,
   login,
   createStore,
-  getStore,
+  changeUser,
 } = require("../../validation/auth.validation");
 const validator = require("../../config/validator");
 const { authenticateToken } = require("../../config/Tokens");
@@ -20,7 +20,14 @@ router
     upload.single("profileImage"),
     authController.createUser
   )
-  .patch(validator(login), authController.loginUser);
+  .patch(
+    authenticateToken,
+    validator(changeUser),
+    upload.single("profileImage"),
+    authController.changeUser
+  );
+
+router.route("/login").post(validator(login), authController.loginUser);
 
 router
   .route("/workspace")
@@ -29,5 +36,5 @@ router
     upload.single("storeImage"),
     validator(createStore),
     authController.createStore
-  )
+  );
 module.exports = router;

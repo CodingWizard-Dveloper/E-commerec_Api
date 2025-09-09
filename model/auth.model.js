@@ -8,7 +8,7 @@ const User = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now, required: false },
   updatedAt: { type: Date, default: Date.now, required: false },
   accessToken: { type: String, required: false, unique: false },
-  avatar: { type: String, required: false, unique: false },
+  avatar: { type: JSON, required: false, unique: false },
   role: { type: String, enum: ["admin", "user"], default: "user" },
   storeId: { type: mongoose.Schema.Types.ObjectId, ref: "Store" },
 });
@@ -16,7 +16,7 @@ const User = new mongoose.Schema({
 const store = new mongoose.Schema({
   storeName: { type: String, required: true },
   ownerId: { type: String, required: true, unique: true },
-  storeImage: { type: String, required: false },
+  storeImage: { type: JSON, required: false },
   createdAt: { type: Date, default: Date().now, required: false },
   updatedAt: { type: Date, default: Date().now, required: false },
   description: { type: String, required: true },

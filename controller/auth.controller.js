@@ -51,9 +51,28 @@ const createStore = async (req, res) => {
   }
 };
 
+const changeUser = async (req, res) => {
+  const { email, password, name: userName, profileImage: avatar} = req.body;
+  const { userId } = req.user;
+  const profileImage = req.file;
+
+
+  const { response, status } = await authService.changeUser({
+    email,
+    password,
+    userName,
+    userId,
+    profileImage,
+    avatar
+  });
+
+  res.status(status).json(response);
+};
+
 module.exports = {
   createUser,
   getUser,
   loginUser,
   createStore,
+  changeUser,
 };

@@ -27,7 +27,10 @@ const createUser = async (credentials) => {
 
   const cloudResult = await cloudinary.uploader.upload(profileImage.path);
 
-  newUser.avatar = cloudResult?.secure_url;
+  newUser.avatar = {
+    url: cloudResult?.secure_url,
+    publicId: cloudResult?.public_id,
+  };
 
   await newUser.save();
 
@@ -54,10 +57,15 @@ const getUser = async (userId) => {
   }
 
   const userToSend = myUser.toObject();
+
   delete userToSend.password;
+
+  userToSend.avatar = userToSend?.avatar?.url;
+
   const userStore = await Store.findById(userToSend.storeId);
   if (userStore) {
     userToSend.store = await Store.findById(userToSend.storeId);
+    userToSend.store.storeImage = userToSend?.store?.storeImage?.url;
     delete userToSend.storeId;
   }
   return {
@@ -139,7 +147,10 @@ const createStore = async (data) => {
 
     const cloudResult = await cloudinary.uploader.upload(storeImage.path);
 
-    newStore.storeImage = cloudResult?.secure_url;
+    newStore.storeImage = {
+      url: cloudResult?.secure_url,
+      publicId: cloudResult?.public_id,
+    };
 
     await newStore.save();
 
@@ -161,9 +172,63 @@ const createStore = async (data) => {
   }
 };
 
+const changeUser = async (data) => {
+  const { userId, userName, email, password, profileImage, avatar } = data;
+
+  const thisUser = await User.findById(userId);
+
+  const updateData = {};
+
+  if (thisUser.userName !== userName) {
+    updateData.userName = userName;
+  }
+
+  if (thisUser.email !== email) {
+    updateData.email = email;
+  }
+
+  if (password && !(await bcrypt.compare(password, thisUser.password))) {
+    updateData.password = await bcrypt.hash(password, 10);
+  }
+
+  if (avatar !== thisUser?.avatar?.url) {
+    cloudinary.uploader.destroy(thisUser?.avatar?.publicId);
+    const cloudResult = await cloudinary.uploader.upload(profileImage.path);
+    updateData.storeImage = {
+      url: cloudResult?.secure_url,
+      publicId: cloudResult?.public_id,
+    };
+  }
+
+  // Only update if there are changes
+  if (Object.keys(updateData).length > 0) {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    const user = await getUser(thisUser._id);
+
+    return {
+      status: 200,
+      response: {
+        message: "User updated successfully",
+        user: user?.data?.user,
+      },
+    };
+  }
+
+  return {
+    status: 200,
+    response: { message: "No changes detected" },
+  };
+};
+
 module.exports = {
   createUser,
   getUser,
   createStore,
   loginUser,
+  changeUser,
 };
