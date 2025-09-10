@@ -1,4 +1,4 @@
-const { generateToken } = require("../config/Tokens");
+const { generateToken, generateTokens, verifyRefreshToken } = require("../config/Tokens");
 const { User, Store } = require("../model/auth.model");
 const bcrypt = require("bcryptjs");
 const { v2: cloudinary } = require("cloudinary");
@@ -95,18 +95,20 @@ const loginUser = async (credentials) => {
       };
     }
 
-    // Generate new token on each login for security
-    const newToken = generateToken(isUser._id);
+    // Generate both access and refresh tokens
+    const { accessToken, refreshToken } = generateTokens(isUser._id);
 
-    // Update user with new token
-    isUser.accessToken = newToken;
+    // Update user with new tokens
+    isUser.accessToken = accessToken;
+    isUser.refreshToken = refreshToken;
     await isUser.save();
 
     return {
       status: 200,
       data: {
         message: "Successfully Logged In",
-        token: newToken,
+        token: accessToken,
+        refreshToken: refreshToken,
       },
     };
   } catch (error) {
@@ -173,8 +175,9 @@ const createStore = async (data) => {
 };
 
 const changeUser = async (data) => {
-  const { userId, userName, email, password, profileImage, avatar } = data;
+  const { userId, userName, email, password, profileImage, imageURL } = data;
 
+  console.log(data)
   const thisUser = await User.findById(userId);
 
   const updateData = {};
@@ -184,25 +187,36 @@ const changeUser = async (data) => {
   }
 
   if (thisUser.email !== email) {
-    updateData.email = email;
+    return {
+      status: 400,
+      response: { message: "Email cannot be changes" },
+    };
   }
 
   if (password && !(await bcrypt.compare(password, thisUser.password))) {
     updateData.password = await bcrypt.hash(password, 10);
   }
 
-  if (avatar !== thisUser?.avatar?.url) {
+  if (profileImage || imageURL) {
+    if (imageURL !== thisUser?.avatar?.url) {
+      cloudinary.uploader.destroy(thisUser?.avatar?.publicId);
+      const cloudResult = await cloudinary.uploader.upload(profileImage.path);
+      updateData.avatar = {
+        url: cloudResult?.secure_url,
+        publicId: cloudResult?.public_id,
+      };
+    }
+  } else {
     cloudinary.uploader.destroy(thisUser?.avatar?.publicId);
-    const cloudResult = await cloudinary.uploader.upload(profileImage.path);
-    updateData.storeImage = {
-      url: cloudResult?.secure_url,
-      publicId: cloudResult?.public_id,
+    updateData.avatar = {
+      url: undefined,
+      publicId: undefined,
     };
   }
 
   // Only update if there are changes
   if (Object.keys(updateData).length > 0) {
-    const updatedUser = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       userId,
       { $set: updateData },
       { new: true, runValidators: true }
@@ -225,10 +239,46 @@ const changeUser = async (data) => {
   };
 };
 
+const refreshToken = async (refreshToken) => {
+  try {
+    // Verify the refresh token
+    const decoded = verifyRefreshToken(refreshToken);
+
+    // Check if user still exists and has this refresh token
+    const user = await User.findById(decoded.userId);
+    if (!user || user.refreshToken !== refreshToken) {
+      throw new Error("Invalid refresh token");
+    }
+
+    // Generate new tokens
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user._id);
+
+    // Update user with new tokens
+    user.accessToken = accessToken;
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    return {
+      status: 200,
+      response: {
+        message: "Tokens refreshed successfully",
+        token: accessToken,
+        refreshToken: newRefreshToken,
+      },
+    };
+  } catch (error) {
+    return {
+      status: 401,
+      response: { message: "Invalid refresh token" },
+    };
+  }
+};
+
 module.exports = {
   createUser,
   getUser,
   createStore,
   loginUser,
   changeUser,
+  refreshToken,
 };

@@ -29,6 +29,8 @@ router
 
 router.route("/login").post(validator(login), authController.loginUser);
 
+router.route("/refresh").post(authController.refreshToken);
+
 router
   .route("/workspace")
   .post(

@@ -52,7 +52,7 @@ const createStore = async (req, res) => {
 };
 
 const changeUser = async (req, res) => {
-  const { email, password, name: userName, profileImage: avatar} = req.body;
+  const { email, password, userName, profileImage: imageURL } = req.body;
   const { userId } = req.user;
   const profileImage = req.file;
 
@@ -63,10 +63,21 @@ const changeUser = async (req, res) => {
     userName,
     userId,
     profileImage,
-    avatar
+    imageURL
   });
 
   res.status(status).json(response);
+};
+
+const refreshToken = async (req, res) => {
+  const { refreshToken } = req.body;
+
+  try {
+    const { response, status } = await authService.refreshToken(refreshToken);
+    res.status(status).json(response);
+  } catch (error) {
+    res.status(401).json({ message: "Invalid refresh token" });
+  }
 };
 
 module.exports = {
@@ -75,4 +86,5 @@ module.exports = {
   loginUser,
   createStore,
   changeUser,
+  refreshToken,
 };
