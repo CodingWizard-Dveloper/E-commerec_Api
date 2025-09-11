@@ -1,4 +1,8 @@
-const { generateToken, generateTokens, verifyRefreshToken } = require("../config/Tokens");
+const {
+  generateToken,
+  generateTokens,
+  verifyRefreshToken,
+} = require("../config/Tokens");
 const { User, Store } = require("../model/auth.model");
 const bcrypt = require("bcryptjs");
 const { v2: cloudinary } = require("cloudinary");
@@ -177,7 +181,7 @@ const createStore = async (data) => {
 const changeUser = async (data) => {
   const { userId, userName, email, password, profileImage, imageURL } = data;
 
-  console.log(data)
+  console.log(data);
   const thisUser = await User.findById(userId);
 
   const updateData = {};
@@ -251,7 +255,9 @@ const refreshToken = async (refreshToken) => {
     }
 
     // Generate new tokens
-    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user._id);
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(
+      user._id
+    );
 
     // Update user with new tokens
     user.accessToken = accessToken;
@@ -274,6 +280,38 @@ const refreshToken = async (refreshToken) => {
   }
 };
 
+const deleteUser = async (data) => {
+  const { storeId, userId } = data;
+
+  const thisUser = await User.findById(userId);
+  const thisStore = await Store.findById(storeId);
+
+  if (!thisStore) {
+    return {
+      status: 402,
+      respnse: { message: "Store not existed" },
+    };
+  }
+  if (!thisUser?.storeId.equals(thisStore?._id)) {
+    return {
+      status: 400,
+      response: { message: "You are not the owner of this " },
+    };
+  }
+
+  await cloudinary?.uploader?.destroy(thisStore?.storeImage?.publicId);
+
+  await Store?.findByIdAndDelete(thisStore?._id);
+  await User?.findByIdAndUpdate(thisUser?._id, {
+    $set: { storeId: null },
+  });
+
+  return {
+    status: 201,
+    response: { message: "Store Seleted" },
+  };
+};
+
 module.exports = {
   createUser,
   getUser,
@@ -281,4 +319,5 @@ module.exports = {
   loginUser,
   changeUser,
   refreshToken,
+  deleteUser,
 };

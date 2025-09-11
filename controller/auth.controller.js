@@ -56,14 +56,13 @@ const changeUser = async (req, res) => {
   const { userId } = req.user;
   const profileImage = req.file;
 
-
   const { response, status } = await authService.changeUser({
     email,
     password,
     userName,
     userId,
     profileImage,
-    imageURL
+    imageURL,
   });
 
   res.status(status).json(response);
@@ -80,6 +79,17 @@ const refreshToken = async (req, res) => {
   }
 };
 
+const deleteStore = async (req, res) => {
+  const { storeId } = req.body;
+  const { userId } = req.user;
+
+  const { response, status } = await authService?.deleteUser({
+    storeId,
+    userId,
+  });
+  res.status(status).json(response);
+};
+
 module.exports = {
   createUser,
   getUser,
@@ -87,4 +97,5 @@ module.exports = {
   createStore,
   changeUser,
   refreshToken,
+  deleteStore
 };

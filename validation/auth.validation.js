@@ -47,10 +47,18 @@ const changeUser = {
   headers: authHeader,
 };
 
+const deleteStore = {
+  body: joi.object().keys({
+    storeId: joi.string().required(),
+  }),
+  headers: authHeader,
+};
+
 module.exports = {
   getUser,
   createUser,
   login,
   createStore,
   changeUser,
+  deleteStore,
 };

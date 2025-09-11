@@ -4,6 +4,7 @@ const {
   login,
   createStore,
   changeUser,
+  deleteStore,
 } = require("../../validation/auth.validation");
 const validator = require("../../config/validator");
 const { authenticateToken } = require("../../config/Tokens");
@@ -38,5 +39,10 @@ router
     upload.single("storeImage"),
     validator(createStore),
     authController.createStore
+  )
+  .delete(
+    authenticateToken,
+    validator(deleteStore),
+    authController.deleteStore
   );
 module.exports = router;
