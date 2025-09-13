@@ -52,13 +52,20 @@ const createStore = async (req, res) => {
 };
 
 const changeUser = async (req, res) => {
-  const { email, password, userName, profileImage: imageURL } = req.body;
+  const {
+    email,
+    currentPass,
+    newPass,
+    userName,
+    profileImage: imageURL,
+  } = req.body;
   const { userId } = req.user;
   const profileImage = req.file;
 
   const { response, status } = await authService.changeUser({
     email,
-    password,
+    currentPass,
+    newPass,
     userName,
     userId,
     profileImage,
@@ -97,5 +104,5 @@ module.exports = {
   createStore,
   changeUser,
   refreshToken,
-  deleteStore
+  deleteStore,
 };

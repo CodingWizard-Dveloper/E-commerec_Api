@@ -41,7 +41,12 @@ const changeUser = {
   body: joi.object().keys({
     email: joi.string().email().optional(),
     userName: joi.string().min(2).max(20).optional(),
-    password: joi.string().min(6).max(100).optional(),
+    currentPass: joi.string().min(6).max(100).optional(),
+    newPass: joi.string().min(6).max(100).when("currentPass", {
+      is: true,
+      then: joi.required(),
+      otherwise: joi.optional(),
+    }),
     profileImage: joi.string().optional(),
   }),
   headers: authHeader,

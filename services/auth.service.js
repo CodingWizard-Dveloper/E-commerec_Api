@@ -179,26 +179,43 @@ const createStore = async (data) => {
 };
 
 const changeUser = async (data) => {
-  const { userId, userName, email, password, profileImage, imageURL } = data;
+  const {
+    userId,
+    userName,
+    email,
+    currentPass,
+    newPass,
+    profileImage,
+    imageURL,
+  } = data;
 
-  console.log(data);
   const thisUser = await User.findById(userId);
 
   const updateData = {};
+
+  if (currentPass && newPass) {
+    const isPassMatch = await bcrypt.compare(currentPass, thisUser?.password);
+    if (!isPassMatch)
+      return {
+        status: 400,
+        response: { message: "Invalid Password!" },
+      };
+
+    const salt = await bcrypt.genSalt(10);
+    updateData.password = await bcrypt.hash(newPass, salt);
+  }
 
   if (thisUser.userName !== userName) {
     updateData.userName = userName;
   }
 
-  if (thisUser.email !== email) {
-    return {
-      status: 400,
-      response: { message: "Email cannot be changes" },
-    };
-  }
-
-  if (password && !(await bcrypt.compare(password, thisUser.password))) {
-    updateData.password = await bcrypt.hash(password, 10);
+  if (email) {
+    if (thisUser.email !== email) {
+      return {
+        status: 400,
+        response: { message: "Email cannot be changes" },
+      };
+    }
   }
 
   if (profileImage || imageURL) {
@@ -220,8 +237,8 @@ const changeUser = async (data) => {
 
   // Only update if there are changes
   if (Object.keys(updateData).length > 0) {
-    await User.findByIdAndUpdate(
-      userId,
+    await User.updateOne(
+      { _id: userId },
       { $set: updateData },
       { new: true, runValidators: true }
     );
