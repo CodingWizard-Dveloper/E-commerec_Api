@@ -20,6 +20,18 @@ const store = new mongoose.Schema({
   createdAt: { type: Date, default: Date().now, required: false },
   updatedAt: { type: Date, default: Date().now, required: false },
   description: { type: String, required: true },
+  type: {
+    type: String,
+    required: true,
+    enum: [
+      "electronics",
+      "fasion",
+      "living",
+      "cosmetics",
+      "books",
+      "sports",
+    ],
+  },
 });
 
 User.pre("save", async function (next) {

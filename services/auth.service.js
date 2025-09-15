@@ -126,7 +126,7 @@ const loginUser = async (credentials) => {
 
 const createStore = async (data) => {
   try {
-    const { storeName, description, ownerId, storeImage } = data;
+    const { storeName, description, ownerId, storeImage, type } = data;
 
     const existingStore = await Store.find({ storeName });
     const existingOwner = await User.findById(ownerId);
@@ -149,6 +149,7 @@ const createStore = async (data) => {
       storeName,
       ownerId,
       description,
+      type,
     });
 
     const cloudResult = await cloudinary.uploader.upload(storeImage.path);
@@ -167,7 +168,10 @@ const createStore = async (data) => {
     );
 
     return {
-      response: { message: "Store created successfully", user: updatedUser },
+      response: {
+        message: "Store created successfully",
+        user: getUser(updatedUser._id),
+      },
       status: 200,
     };
   } catch (e) {

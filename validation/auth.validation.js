@@ -33,6 +33,16 @@ const createStore = {
     description: joi.string().max(255).optional(),
     ownerId: joi.string().required(),
     storeAvatar: joi.any().optional(),
+    type: joi
+      .string()
+      .valid(
+        "electronics",
+        "fasion",
+        "living",
+        "cosmatics",
+        "books",
+        "sports"
+      ),
   }),
   headers: authHeader,
 };

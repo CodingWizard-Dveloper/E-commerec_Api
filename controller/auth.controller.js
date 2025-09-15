@@ -34,7 +34,7 @@ const loginUser = async (req, res) => {
 };
 
 const createStore = async (req, res) => {
-  const { storeName, description, ownerId } = req.body;
+  const { storeName, description, ownerId, type } = req.body;
   const storeImage = req.file;
 
   try {
@@ -43,6 +43,7 @@ const createStore = async (req, res) => {
       description,
       ownerId,
       storeImage,
+      type,
     });
 
     res.status(status).json(response);
