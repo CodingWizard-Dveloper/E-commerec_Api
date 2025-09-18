@@ -33,24 +33,6 @@ const loginUser = async (req, res) => {
   res.status(status).json(data);
 };
 
-const createStore = async (req, res) => {
-  const { storeName, description, ownerId, type } = req.body;
-  const storeImage = req.file;
-
-  try {
-    const { response, status } = await authService.createStore({
-      storeName,
-      description,
-      ownerId,
-      storeImage,
-      type,
-    });
-
-    res.status(status).json(response);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
 
 const changeUser = async (req, res) => {
   const {
@@ -87,23 +69,10 @@ const refreshToken = async (req, res) => {
   }
 };
 
-const deleteStore = async (req, res) => {
-  const { storeId } = req.body;
-  const { userId } = req.user;
-
-  const { response, status } = await authService?.deleteUser({
-    storeId,
-    userId,
-  });
-  res.status(status).json(response);
-};
-
 module.exports = {
   createUser,
   getUser,
   loginUser,
-  createStore,
   changeUser,
   refreshToken,
-  deleteStore,
 };

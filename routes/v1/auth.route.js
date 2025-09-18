@@ -31,18 +31,4 @@ router
 router.route("/login").post(validator(login), authController.loginUser);
 
 router.route("/refresh").post(authController.refreshToken);
-
-router
-  .route("/workspace")
-  .post(
-    authenticateToken,
-    upload.single("storeImage"),
-    validator(createStore),
-    authController.createStore
-  )
-  .delete(
-    authenticateToken,
-    validator(deleteStore),
-    authController.deleteStore
-  );
 module.exports = router;

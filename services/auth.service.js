@@ -3,7 +3,7 @@ const {
   generateTokens,
   verifyRefreshToken,
 } = require("../config/Tokens");
-const { User, Store } = require("../model/auth.model");
+const { User, Store } = require("../model/user.model");
 const bcrypt = require("bcryptjs");
 const { v2: cloudinary } = require("cloudinary");
 const fs = require("fs");
@@ -120,64 +120,6 @@ const loginUser = async (credentials) => {
     return {
       status: 500,
       data: { message: "Internal server error", token: null },
-    };
-  }
-};
-
-const createStore = async (data) => {
-  try {
-    const { storeName, description, ownerId, storeImage, type } = data;
-
-    const existingStore = await Store.find({ storeName });
-    const existingOwner = await User.findById(ownerId);
-
-    if (existingOwner.storeId) {
-      return {
-        response: { message: "You are already the owner of a store" },
-        status: 401,
-      };
-    }
-
-    if (existingStore.length) {
-      return {
-        response: { message: "Store with this name already exists" },
-        status: 409,
-      };
-    }
-
-    const newStore = await Store.create({
-      storeName,
-      ownerId,
-      description,
-      type,
-    });
-
-    const cloudResult = await cloudinary.uploader.upload(storeImage.path);
-
-    newStore.storeImage = {
-      url: cloudResult?.secure_url,
-      publicId: cloudResult?.public_id,
-    };
-
-    await newStore.save();
-
-    const updatedUser = await User.findByIdAndUpdate(
-      ownerId,
-      { $set: { storeId: newStore._id } },
-      { new: true, runValidators: true }
-    );
-
-    return {
-      response: {
-        message: "Store created successfully",
-        user: getUser(updatedUser._id),
-      },
-      status: 200,
-    };
-  } catch (e) {
-    return {
-      response: { message: `Unknown Error: ${e.message}` },
-      status: 400,
     };
   }
 };
@@ -301,44 +243,11 @@ const refreshToken = async (refreshToken) => {
   }
 };
 
-const deleteUser = async (data) => {
-  const { storeId, userId } = data;
-
-  const thisUser = await User.findById(userId);
-  const thisStore = await Store.findById(storeId);
-
-  if (!thisStore) {
-    return {
-      status: 402,
-      respnse: { message: "Store not existed" },
-    };
-  }
-  if (!thisUser?.storeId.equals(thisStore?._id)) {
-    return {
-      status: 400,
-      response: { message: "You are not the owner of this " },
-    };
-  }
-
-  await cloudinary?.uploader?.destroy(thisStore?.storeImage?.publicId);
-
-  await Store?.findByIdAndDelete(thisStore?._id);
-  await User?.findByIdAndUpdate(thisUser?._id, {
-    $set: { storeId: null },
-  });
-
-  return {
-    status: 201,
-    response: { message: "Store Seleted" },
-  };
-};
 
 module.exports = {
   createUser,
   getUser,
-  createStore,
   loginUser,
   changeUser,
   refreshToken,
-  deleteUser,
 };

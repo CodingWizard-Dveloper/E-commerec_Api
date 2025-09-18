@@ -13,7 +13,7 @@ const User = new mongoose.Schema({
   storeId: { type: mongoose.Schema.Types.ObjectId, ref: "Store" },
 });
 
-const store = new mongoose.Schema({
+const Store = new mongoose.Schema({
   storeName: { type: String, required: true },
   ownerId: { type: String, required: true, unique: true },
   storeImage: { type: JSON, required: false },
@@ -23,14 +23,24 @@ const store = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: [
-      "electronics",
-      "fasion",
-      "living",
-      "cosmetics",
-      "books",
-      "sports",
-    ],
+    enum: ["electronics", "fashion", "living", "cosmetics", "books", "sports"],
+  },
+});
+
+const products = new mongoose.Schema({
+  name: { type: String, required: true },
+  desc: { type: String, required: true, min: 6, max: 60 },
+  productImage: { type: JSON, required: true },
+  createdAt: { type: Date, default: Date().now, required: false },
+  updatedAt: { type: Date, default: Date().now, required: false },
+  storeId: { type: String, required: true },
+  ownerId: { type: String, required: true },
+  totalProducts: { type: Number, required: true },
+  price: { type: Number, required: true },
+  type: {
+    type: String,
+    required: true,
+    enum: ["electronics", "fashion", "living", "cosmetics", "books", "sports"],
   },
 });
 
@@ -43,9 +53,11 @@ User.pre("save", async function (next) {
 });
 
 const UserModel = mongoose.model("users", User);
-const storeModel = mongoose.model("stores", store);
+const storeModel = mongoose.model("stores", Store);
+const productModel = mongoose.model("products", products);
 
 module.exports = {
   User: UserModel,
   Store: storeModel,
+  Product: productModel,
 };

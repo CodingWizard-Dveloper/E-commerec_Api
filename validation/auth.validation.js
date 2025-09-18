@@ -27,26 +27,6 @@ const login = {
   headers: authHeader,
 };
 
-const createStore = {
-  body: joi.object().keys({
-    storeName: joi.string().min(3).max(50).required(),
-    description: joi.string().max(255).optional(),
-    ownerId: joi.string().required(),
-    storeAvatar: joi.any().optional(),
-    type: joi
-      .string()
-      .valid(
-        "electronics",
-        "fasion",
-        "living",
-        "cosmatics",
-        "books",
-        "sports"
-      ),
-  }),
-  headers: authHeader,
-};
-
 const changeUser = {
   body: joi.object().keys({
     email: joi.string().email().optional(),
@@ -62,18 +42,10 @@ const changeUser = {
   headers: authHeader,
 };
 
-const deleteStore = {
-  body: joi.object().keys({
-    storeId: joi.string().required(),
-  }),
-  headers: authHeader,
-};
 
 module.exports = {
   getUser,
   createUser,
   login,
-  createStore,
   changeUser,
-  deleteStore,
 };
