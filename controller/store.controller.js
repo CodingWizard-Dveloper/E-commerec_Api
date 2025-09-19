@@ -54,4 +54,12 @@ const updateStore = async (req, res) => {
   res.json(response).status(status);
 };
 
-module.exports = { deleteStore, createStore, updateStore };
+const getStore = async (req, res) => {
+  const { userId } = req.user;
+
+  const { response, status } = await storeService.getStore(userId);
+
+  res.json(response).status(status);
+};
+
+module.exports = { deleteStore, createStore, updateStore, getStore };

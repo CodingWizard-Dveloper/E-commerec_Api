@@ -66,12 +66,6 @@ const getUser = async (userId) => {
 
   userToSend.avatar = userToSend?.avatar?.url;
 
-  const userStore = await Store.findById(userToSend.storeId);
-  if (userStore) {
-    userToSend.store = await Store.findById(userToSend.storeId);
-    userToSend.store.storeImage = userToSend?.store?.storeImage?.url;
-    delete userToSend.storeId;
-  }
   return {
     status: 201,
     data: { message: "User exists", user: userToSend },
@@ -242,7 +236,6 @@ const refreshToken = async (refreshToken) => {
     };
   }
 };
-
 
 module.exports = {
   createUser,

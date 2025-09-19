@@ -52,7 +52,12 @@ const updateStore = {
   headers: authHeader,
 };
 
+const getStore = {
+  headers: authHeader,
+};
+
 module.exports = {
+  getStore,
   deleteStore,
   createStore,
   updateStore,

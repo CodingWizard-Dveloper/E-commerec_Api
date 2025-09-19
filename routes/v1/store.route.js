@@ -2,6 +2,7 @@ const {
   createStore,
   deleteStore,
   updateStore,
+  getStore,
 } = require("../../validation/store.validation");
 const validator = require("../../config/validator");
 const { authenticateToken } = require("../../config/Tokens");
@@ -12,6 +13,11 @@ const upload = multer({ dest: "uploads/" });
 
 router
   .route("/")
+  .get(
+    authenticateToken,
+    validator(getStore),
+    storeController.getStore
+  )
   .post(
     authenticateToken,
     upload.single("storeImage"),

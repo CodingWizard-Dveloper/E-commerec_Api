@@ -176,8 +176,34 @@ const updateStore = async (data) => {
   };
 };
 
+const getStore = async (userId) => {
+  let storeToSend = {};
+  const userStore = await User.findById(userId);
+  if (userStore.storeId) {
+    storeToSend = await Store.findById(userStore.storeId);
+    storeToSend.storeImage = storeToSend?.storeImage?.url;
+
+    return {
+      status: 201,
+      response: {
+        message: "Store found",
+        store: storeToSend,
+      },
+    };
+  }
+
+  return {
+    status: 200,
+    response: {
+      message: "No store found",
+      store: null,
+    },
+  };
+};
+
 module.exports = {
   deleteStore,
   createStore,
   updateStore,
+  getStore,
 };
