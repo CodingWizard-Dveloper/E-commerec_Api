@@ -5,8 +5,8 @@ const User = new mongoose.Schema({
   userName: { type: String, required: true, unique: false },
   password: { type: String, required: true, unique: false },
   email: { type: String, required: true, unique: true },
-  createdAt: { type: Date, default: Date.now, required: false },
-  updatedAt: { type: Date, default: Date.now, required: false },
+  createdAt: { type: Date, required: true },
+  updatedAt: { type: Date, default: Date.now(), required: false },
   accessToken: { type: String, required: false, unique: false },
   avatar: { type: JSON, required: false, unique: false },
   role: { type: String, enum: ["admin", "user"], default: "user" },
@@ -17,21 +17,24 @@ const Store = new mongoose.Schema({
   storeName: { type: String, required: true },
   ownerId: { type: String, required: true, unique: true },
   storeImage: { type: JSON, required: false },
-  createdAt: { type: Date, default: Date().now, required: false },
-  updatedAt: { type: Date, default: Date().now, required: false },
+  createdAt: { type: Date, required: true },
+  updatedAt: { type: Date, default: Date.now(), required: false },
   description: { type: String, required: true },
   type: {
     type: String,
     required: true,
     enum: ["electronics", "fashion", "living", "cosmetics", "books", "sports"],
   },
+  itemSelled: { type: Number, required: false },
+  totalRevenue: { type: Number, required: false },
+  customers: { type: JSON, required: false },
 });
 
 const products = new mongoose.Schema({
-  name: { type: String, required: true },
+  title: { type: String, required: true },
   desc: { type: String, required: true, min: 6, max: 60 },
-  productImage: { type: JSON, required: true },
-  createdAt: { type: Date, default: Date().now, required: false },
+  productImage: { type: JSON, required: false },
+  createdAt: { type: Date, required: true },
   updatedAt: { type: Date, default: Date().now, required: false },
   storeId: { type: String, required: true },
   ownerId: { type: String, required: true },
@@ -42,6 +45,7 @@ const products = new mongoose.Schema({
     required: true,
     enum: ["electronics", "fashion", "living", "cosmetics", "books", "sports"],
   },
+  itemSelled: { type: Number, required: false },
 });
 
 User.pre("save", async function (next) {

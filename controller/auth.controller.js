@@ -33,7 +33,6 @@ const loginUser = async (req, res) => {
   res.status(status).json(data);
 };
 
-
 const changeUser = async (req, res) => {
   const {
     email,

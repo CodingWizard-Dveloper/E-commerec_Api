@@ -1,4 +1,4 @@
-const { User, Store } = require("../model/user.model");
+const { User, Store, Product } = require("../model/user.model");
 const { v2: cloudinary } = require("cloudinary");
 const fs = require("fs");
 const { getUser } = require("./auth.service");
@@ -94,6 +94,8 @@ const deleteStore = async (data) => {
   await User?.findByIdAndUpdate(thisUser?._id, {
     $set: { storeId: null },
   });
+
+  await Product.deleteMany({ storeId, ownerId: userId });
 
   return {
     status: 201,

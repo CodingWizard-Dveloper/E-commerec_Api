@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const authRoute = require("./v1/auth.route");
 const storeRoute = require("./v1/store.route");
+const productRoute = require("./v1/product.route");
 
 // router.use("/auth", authRoute);
 const myRoutes = [
@@ -11,6 +12,10 @@ const myRoutes = [
   {
     path: "/store",
     route: storeRoute,
+  },
+  {
+    path: "/products",
+    route: productRoute,
   },
 ];
 
