@@ -3,7 +3,7 @@ const {
   generateTokens,
   verifyRefreshToken,
 } = require("../config/Tokens");
-const { User, Store } = require("../model/user.model");
+const { User } = require("../model/user.model");
 const bcrypt = require("bcryptjs");
 const { v2: cloudinary } = require("cloudinary");
 const fs = require("fs");

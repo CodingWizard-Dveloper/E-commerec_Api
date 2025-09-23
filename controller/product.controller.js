@@ -1,16 +1,10 @@
 const { productService } = require("../services");
 
 const addProduct = async (req, res) => {
-  const {
-    type,
-    title,
-    description: desc,
-    price,
-    totalProducts,
-    storeId,
-  } = req.body;
+  const { type, title, description: desc, price, totalProducts } = req.body;
   const { userId } = req.user;
   const productImage = req.file;
+  const { storeId } = req.params;
 
   const { response, status } = await productService?.addProduct({
     type,
@@ -26,15 +20,29 @@ const addProduct = async (req, res) => {
   res.json(response).status(status);
 };
 
-const getProduct = async (req, res) => {
+const getProductsForAdmin = async (req, res) => {
   const { userId } = req.user;
 
-  const { response, status } = await productService.getproducts(userId);
+  const { response, status } = await productService.getProductsForAdmin(userId);
+
+  res.json(response).status(status);
+};
+
+const deleteProduct = async (req, res) => {
+  const { productId, storeId } = req.params;
+  const { userId } = req.user;
+
+  const { response, status } = await productService?.deleteProduct({
+    productId,
+    storeId,
+    userId,
+  });
 
   res.json(response).status(status);
 };
 
 module.exports = {
   addProduct,
-  getProduct,
+  getProductsForAdmin,
+  deleteProduct,
 };

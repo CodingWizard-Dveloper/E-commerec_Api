@@ -51,7 +51,7 @@ const addProduct = async ({
   };
 };
 
-const getproducts = async (userId) => {
+const getProductsForAdmin = async (userId) => {
   const thisStore = await Store.findOne({ ownerId: userId });
   if (!thisStore) {
     return {
@@ -77,4 +77,32 @@ const getproducts = async (userId) => {
   };
 };
 
-module.exports = { addProduct, getproducts };
+const deleteProduct = async ({ productId, userId, storeId }) => {
+  const thisProduct = await Product?.findOne({
+    _id: productId,
+    storeId: storeId,
+  });
+
+  if (thisProduct?.ownerId !== userId)
+    return {
+      response: {
+        message: "You are not the owner of this product",
+        products: (await getProductsForAdmin(userId))?.response.products,
+      },
+      status: 400,
+    };
+
+  await cloudinary?.uploader?.destroy(thisProduct?.productImage?.publicId);
+
+  await Product?.findByIdAndDelete(productId);
+
+  return {
+    response: {
+      message: "Product deleted",
+      products: (await getProductsForAdmin(userId))?.response.products,
+    },
+    status: 200,
+  };
+};
+
+module.exports = { addProduct, getProductsForAdmin, deleteProduct };

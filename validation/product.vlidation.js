@@ -5,6 +5,9 @@ const authHeader = joi.object().keys({
 });
 
 const addProduct = {
+  params: joi.object().keys({
+    storeId: joi.string().required(),
+  }),
   body: joi.object().keys({
     title: joi.string().min(3).max(30).required(),
     description: joi.string().min(8).max(80).required(),
@@ -14,7 +17,14 @@ const addProduct = {
       .string()
       .valid("electronics", "fashion", "living", "cosmatics", "books", "sports")
       .required(),
+  }),
+  Headers: authHeader,
+};
+
+const deleteProduct = {
+  params: joi.object().keys({
     storeId: joi.string().required(),
+    productId: joi.string().required(),
   }),
   Headers: authHeader,
 };
@@ -26,4 +36,5 @@ const getProducts = {
 module.exports = {
   addProduct,
   getProducts,
+  deleteProduct,
 };
