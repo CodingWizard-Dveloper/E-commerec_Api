@@ -51,7 +51,7 @@ const addProduct = async ({
   };
 };
 
-const getProductsForAdmin = async (userId) => {
+const getProductsForAdmin = async (userId, query = {}) => {
   const thisStore = await Store.findOne({ ownerId: userId });
   if (!thisStore) {
     return {
@@ -61,9 +61,27 @@ const getProductsForAdmin = async (userId) => {
   }
   let productToSend = [];
 
+  const limit = parseInt(query?.limit) || 10;
+  const page = parseInt(query?.page) || 1;
+  const sortBy = query?.sortBy || "createdAt";
+  const order = query?.order === "asc" ? 1 : -1;
+
   const storeProducts = await Product.find({
     ownerId: userId,
     storeId: thisStore._id,
+  })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .sort({ [sortBy]: order });
+
+  const totalProducts = await Product.countDocuments({
+    ownerId: userId,
+    storeId: thisStore._id,
+  });
+
+  let reveniue = 0;
+  storeProducts?.forEach((product) => {
+    reveniue += product?.itemSelled * product?.price;
   });
 
   storeProducts?.forEach((product) => {
@@ -72,7 +90,7 @@ const getProductsForAdmin = async (userId) => {
   });
 
   return {
-    response: { message: "Product Found", products: productToSend },
+    response: { products: productToSend, totalProducts, reveniue },
     status: 200,
   };
 };

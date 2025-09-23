@@ -22,8 +22,12 @@ const addProduct = async (req, res) => {
 
 const getProductsForAdmin = async (req, res) => {
   const { userId } = req.user;
+  const query = req.query;
 
-  const { response, status } = await productService.getProductsForAdmin(userId);
+  const { response, status } = await productService.getProductsForAdmin(
+    userId,
+    query
+  );
 
   res.json(response).status(status);
 };
