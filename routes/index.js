@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const authRoute = require("./v1/auth.route");
 const storeRoute = require("./v1/store.route");
-const productRoute = require("./v1/product.route");
+const productRoute = require("./v1/products.route")
 
 // router.use("/auth", authRoute);
 const myRoutes = [
@@ -15,8 +15,8 @@ const myRoutes = [
   },
   {
     path: "/products",
-    route: productRoute,
-  },
+    route: productRoute
+  }
 ];
 
 myRoutes.forEach((route) => {

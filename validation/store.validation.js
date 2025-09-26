@@ -56,9 +56,39 @@ const getStore = {
   headers: authHeader,
 };
 
+const addProduct = {
+  body: joi.object().keys({
+    title: joi.string().min(3).max(30).required(),
+    description: joi.string().min(8).max(80).required(),
+    price: joi.number().required(),
+    totalProducts: joi.number().required(),
+    type: joi
+      .string()
+      .valid("electronics", "fashion", "living", "cosmatics", "books", "sports")
+      .required(),
+    storeId: joi.string().required(),
+  }),
+  Headers: authHeader,
+};
+
+const deleteProduct = {
+  params: joi.object().keys({
+    storeId: joi.string().required(),
+    productId: joi.string().required(),
+  }),
+  Headers: authHeader,
+};
+
+const getProducts = {
+  Headers: authHeader,
+};
+
 module.exports = {
   getStore,
   deleteStore,
   createStore,
   updateStore,
+  addProduct,
+  deleteProduct,
+  getProducts,
 };
