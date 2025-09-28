@@ -8,6 +8,14 @@ const getProducts = {
   Headers: authHeader,
 };
 
+const getProduct = {
+  Headers: authHeader,
+  params: joi.object().keys({
+    id: joi.string().required(),
+  }),
+};
+
 module.exports = {
   getProducts,
+  getProduct,
 };

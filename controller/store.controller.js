@@ -113,6 +113,27 @@ const deleteProduct = async (req, res) => {
   res.json(response).status(status);
 };
 
+const updateProduct = async (req, res) => {
+  const { title, desc, previousUrl, price, type } = req.body;
+  const { userId } = req.user;
+  const { storeId, productId } = req.params;
+  const productImage = req.file;
+
+  const { response, status } = await storeService.updateProduct({
+    title,
+    desc,
+    previousUrl,
+    price,
+    type,
+    userId,
+    storeId,
+    productId,
+    productImage,
+  });
+
+  res.json(response).status(status);
+};
+
 module.exports = {
   deleteStore,
   createStore,
@@ -121,4 +142,5 @@ module.exports = {
   addProduct,
   getProductsForStore,
   deleteProduct,
+  updateProduct,
 };

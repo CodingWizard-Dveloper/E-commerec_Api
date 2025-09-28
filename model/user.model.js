@@ -46,6 +46,7 @@ const products = new mongoose.Schema({
     enum: ["electronics", "fashion", "living", "cosmetics", "books", "sports"],
   },
   itemSelled: { type: Number, required: false },
+  revenue: {type: Number, required: false, default: 0}
 });
 
 User.pre("save", async function (next) {

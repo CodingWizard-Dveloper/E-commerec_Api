@@ -331,6 +331,78 @@ const deleteProduct = async ({ productId, userId, storeId }) => {
   };
 };
 
+const updateProduct = async ({
+  title,
+  desc,
+  price,
+  type,
+  productId,
+  storeId,
+  userId,
+  productImage,
+  previousUrl,
+}) => {
+  const thisProduct = await Product?.findOne({
+    _id: productId,
+    storeId: storeId,
+  });
+
+  if (thisProduct?.ownerId !== userId) {
+    return {
+      response: {
+        message: "You are not the owner of this product",
+      },
+      status: 400,
+    };
+  }
+
+  const updateData = {};
+  if (title !== thisProduct?.title) {
+    updateData.title = title;
+  }
+  if (desc !== thisProduct?.desc) {
+    updateData.desc = desc;
+  }
+  if (price !== thisProduct?.price) {
+    updateData.price = price;
+  }
+  if (type !== thisProduct?.type) {
+    updateData.type = type;
+  }
+
+  if (previousUrl || productImage) {
+    if (previousUrl !== thisProduct.productImage.url) {
+      cloudinary.uploader.destroy(thisProduct.productImage.publicId);
+
+      const img = await cloudinary.uploader.upload(productImage?.path);
+
+      updateData.productImage = {
+        url: img?.secure_url,
+        publicId: img?.public_id,
+      };
+    }
+  } else {
+    cloudinary.uploader.destroy(thisProduct.productImage.publicId);
+    updateData.productImage = {
+      url: null,
+      publicId: null,
+    };
+  }
+
+  if (Object.keys(updateData).length > 1) {
+    await Product.updateOne(
+      { _id: productId },
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+  }
+
+  return {
+    response: { message: "Product Udated" },
+    status: 200,
+  };
+};
+
 module.exports = {
   deleteStore,
   createStore,
@@ -339,4 +411,5 @@ module.exports = {
   addProduct,
   getProductsForStore,
   deleteProduct,
+  updateProduct,
 };

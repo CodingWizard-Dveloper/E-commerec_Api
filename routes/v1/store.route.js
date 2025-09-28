@@ -6,6 +6,7 @@ const {
   addProduct,
   getProducts,
   deleteProduct,
+  updateProduct,
 } = require("../../validation/store.validation");
 const validator = require("../../config/validator");
 const { authenticateToken } = require("../../config/Tokens");
@@ -55,6 +56,12 @@ router
     authenticateToken,
     validator(deleteProduct),
     storeController.deleteProduct
+  )
+  .patch(
+    authenticateToken,
+    validator(updateProduct),
+    upload.single("productImage"),
+    storeController.updateProduct
   );
 
 module.exports = router;
