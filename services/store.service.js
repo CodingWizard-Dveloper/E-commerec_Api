@@ -2,71 +2,65 @@ const { User, Store, Product } = require("../model/user.model");
 const { v2: cloudinary } = require("cloudinary");
 const fs = require("fs");
 const { getUser } = require("./auth.service");
+const { checkStoreName } = require("../config/checkData");
 
 const createStore = async (data) => {
-  try {
-    const { storeName, description, ownerId, storeImage, type } = data;
+  const { storeName, description, ownerId, storeImage, type } = data;
 
-    const existingStore = await Store.find({ storeName });
-    const existingOwner = await User.findById(ownerId);
+  const existingOwner = await User.findById(ownerId);
 
-    if (existingOwner.storeId) {
-      return {
-        response: { message: "You are already the owner of a store" },
-        status: 401,
-      };
-    }
-
-    if (existingStore.length) {
-      return {
-        response: { message: "Store with this name already exists" },
-        status: 409,
-      };
-    }
-
-    const newStore = await Store.create({
-      storeName,
-      ownerId,
-      description,
-      type,
-    });
-
-    const cloudResult = await cloudinary.uploader.upload(storeImage.path);
-
-    newStore.storeImage = {
-      url: cloudResult?.secure_url,
-      publicId: cloudResult?.public_id,
-    };
-
-    await newStore.save();
-
-    const updatedUser = await User.findByIdAndUpdate(
-      ownerId,
-      { $set: { storeId: newStore._id } },
-      { new: true, runValidators: true }
-    );
-
-    fs.unlink(storeImage.path, (err) => {
-      if (err) {
-        console.error("Error deleting temporary file:", err);
-      } else {
-        console.log("Temporary file deleted successfully:", storeImage.path);
-      }
-    });
-
+  if (existingOwner.storeId) {
     return {
-      response: {
-        message: "Store created successfully",
-        user: (await getUser(updatedUser._id)).data.user,
-      },
-      status: 200,
-    };
-  } catch (e) {
-    return {
-      response: { message: `Unknown Error: ${e.message}` },
-      status: 400,
+      response: { message: "You are already the owner of a store" },
+      status: 401,
     };
   }
+
+  const isStoreExist = await checkStoreName(storeName);
+  if (isStoreExist) {
+    return {
+      response: { message: "Store with this name already exists" },
+      status: 409,
+    };
+  }
+
+  const newStore = await Store.create({
+    storeName,
+    ownerId,
+    description,
+    type,
+    createdAt: new Date(),
+  });
+
+  const cloudResult = await cloudinary.uploader.upload(storeImage.path);
+
+  newStore.storeImage = {
+    url: cloudResult?.secure_url,
+    publicId: cloudResult?.public_id,
+  };
+
+  await newStore.save();
+
+  const updatedUser = await User.findByIdAndUpdate(
+    ownerId,
+    { $set: { storeId: newStore._id } },
+    { new: true, runValidators: true }
+  );
+
+  fs.unlink(storeImage.path, (err) => {
+    if (err) {
+      console.error("Error deleting temporary file:", err);
+    } else {
+      console.log("Temporary file deleted successfully:", storeImage.path);
+    }
+  });
+
+  return {
+    response: {
+      message: "Store created successfully",
+    },
+    status: 200,
+  };
 };
 
 const deleteStore = async (data) => {

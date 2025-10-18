@@ -1,7 +1,8 @@
 const joi = require("joi");
 
 const authHeader = joi.object().keys({
-  Authorization: joi.string().required(),
+  accessToken: joi.string().required(),
+  refreshToken: joi.string().required(),
 });
 
 const deleteStore = {

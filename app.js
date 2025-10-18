@@ -10,11 +10,7 @@ const { v2: cloudinary } = require("cloudinary");
 database.connectDB();
 app.use(express.json());
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3300",
-  "http://localhost:3000",
-];
+const allowedOrigins = ["http://localhost:5173", "http://localhost:3000", "http://localhost:3300"];
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -30,10 +26,8 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     console.log(
-      `[${new Date().toISOString()}] ${req.method}:  ${req.originalUrl} → ${
-        res.statusCode
-      } - ${
-        res.statusCode >= 400 ? `Message: ${res.locals.body}` : ""
+      `[${new Date().toISOString()}] ${req.method}:  ${req.originalUrl} → ${res.statusCode
+      } - ${res.statusCode >= 400 ? `Message: ${res.locals.body}` : ""
       } (${duration}ms)`
     );
   });
@@ -45,7 +39,21 @@ app.use(
   cors({
     origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type",
+      "accessToken",
+      "refreshToken",
+      "Authorization",
+      "X-Requested-With",
+      "Accept"
+    ],
+    exposedHeaders: [
+      "access-token",
+      "refresh-token",
+      "x-new-access-token",
+      "x-new-refresh-token"
+    ],
+    credentials: true
   })
 );
 cloudinary.config({

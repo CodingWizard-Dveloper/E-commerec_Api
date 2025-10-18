@@ -1,7 +1,8 @@
 const joi = require("joi");
 
 const authHeader = joi.object().keys({
-  Authorization: joi.string().required(),
+  accessToken: joi.string().required(),
+  refreshToken: joi.string().required(),
 });
 
 const getUser = {
@@ -27,7 +28,7 @@ const login = {
   headers: authHeader,
 };
 
-const changeUser = {
+const editUser = {
   body: joi.object().keys({
     email: joi.string().email().optional(),
     userName: joi.string().min(2).max(20).optional(),
@@ -42,10 +43,9 @@ const changeUser = {
   headers: authHeader,
 };
 
-
 module.exports = {
   getUser,
   createUser,
   login,
-  changeUser,
+  editUser,
 };

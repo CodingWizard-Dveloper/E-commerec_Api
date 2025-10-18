@@ -33,7 +33,7 @@ const loginUser = async (req, res) => {
   res.status(status).json(data);
 };
 
-const changeUser = async (req, res) => {
+const editUser = async (req, res) => {
   const {
     email,
     currentPass,
@@ -44,7 +44,7 @@ const changeUser = async (req, res) => {
   const { userId } = req.user;
   const profileImage = req.file;
 
-  const { response, status } = await authService.changeUser({
+  const { response, status } = await authService.editUser({
     email,
     currentPass,
     newPass,
@@ -72,6 +72,6 @@ module.exports = {
   createUser,
   getUser,
   loginUser,
-  changeUser,
+  editUser,
   refreshToken,
 };

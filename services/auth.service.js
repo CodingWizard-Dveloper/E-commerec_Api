@@ -1,5 +1,4 @@
 const {
-  generateToken,
   generateTokens,
   verifyRefreshToken,
 } = require("../config/Tokens");
@@ -25,9 +24,10 @@ const createUser = async (credentials) => {
     email,
   });
 
-  const Token = generateToken(newUser._id);
+  const Token = generateTokens(newUser._id);
 
-  newUser.accessToken = Token;
+  newUser.accessToken = Token.accessToken;
+  newUser.refreshToken = Token.refreshToken;
 
   const cloudResult = await cloudinary.uploader.upload(profileImage.path);
 
@@ -47,7 +47,14 @@ const createUser = async (credentials) => {
     }
   });
 
-  return { status: 200, response: { message: "User Created", token: Token } };
+  return {
+    status: 200,
+    response: {
+      message: "User Created",
+      accessToken: Token.accessToken,
+      refreshToken: Token.refreshToken,
+    },
+  };
 };
 
 const getUser = async (userId) => {
@@ -80,7 +87,11 @@ const loginUser = async (credentials) => {
     if (!isUser) {
       return {
         status: 403,
-        data: { message: "User Does not Exist", token: null },
+        data: {
+          message: "User Does not Exist",
+          accessToken: null,
+          refreshToken: null,
+        },
       };
     }
 
@@ -89,7 +100,11 @@ const loginUser = async (credentials) => {
     if (!verifyPass) {
       return {
         status: 402,
-        data: { message: "Invalid Password", token: null },
+        data: {
+          message: "Invalid Password",
+          accessToken: null,
+          refreshToken: null,
+        },
       };
     }
 
@@ -113,12 +128,16 @@ const loginUser = async (credentials) => {
     console.error("Login error:", error);
     return {
       status: 500,
-      data: { message: "Internal server error", token: null },
+      data: {
+        message: "Internal server error",
+        accessToken: null,
+        refreshToken: null,
+      },
     };
   }
 };
 
-const changeUser = async (data) => {
+const editUser = async (data) => {
   const {
     userId,
     userName,
@@ -241,6 +260,6 @@ module.exports = {
   createUser,
   getUser,
   loginUser,
-  changeUser,
+  editUser,
   refreshToken,
 };

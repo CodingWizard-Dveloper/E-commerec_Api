@@ -1,32 +1,35 @@
 const { storeService } = require("../services");
+const tryCatch = require("../config/tryCatch");
 
 const createStore = async (req, res) => {
   const { storeName, description, ownerId, type } = req.body;
   const storeImage = req.file;
 
-  try {
-    const { response, status } = await storeService.createStore({
-      storeName,
-      description,
-      ownerId,
-      storeImage,
-      type,
-    });
+  const { response, status } = await tryCatch(
+    async () =>
+      await storeService.createStore({
+        storeName,
+        description,
+        ownerId,
+        storeImage,
+        type,
+      })
+  );
 
-    res.status(status).json(response);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
+  res.status(status).json(response);
 };
 
 const deleteStore = async (req, res) => {
   const { storeId } = req.body;
   const { userId } = req.user;
 
-  const { response, status } = await storeService?.deleteStore({
-    storeId,
-    userId,
-  });
+  const { response, status } = await tryCatch(
+    async () =>
+      await storeService?.deleteStore({
+        storeId,
+        userId,
+      })
+  );
   res.status(status).json(response);
 };
 
@@ -41,15 +44,18 @@ const updateStore = async (req, res) => {
   } = req.body;
   const storeImage = req.file;
 
-  const { response, status } = await storeService.updateStore({
-    storeAvatar,
-    storeName,
-    description,
-    type,
-    storeImage,
-    ownerId,
-    storeId,
-  });
+  const { response, status } = await tryCatch(
+    async () =>
+      await storeService.updateStore({
+        storeAvatar,
+        storeName,
+        description,
+        type,
+        storeImage,
+        ownerId,
+        storeId,
+      })
+  );
 
   res.json(response).status(status);
 };
@@ -57,7 +63,9 @@ const updateStore = async (req, res) => {
 const getStore = async (req, res) => {
   const { userId } = req.user;
 
-  const { response, status } = await storeService.getStore(userId);
+  const { response, status } = await tryCatch(
+    async () => await storeService.getStore(userId)
+  );
 
   res.json(response).status(status);
 };
@@ -74,17 +82,19 @@ const addProduct = async (req, res) => {
   const { userId } = req.user;
   const productImage = req.file;
 
-  const { response, status } = await storeService?.addProduct({
-    type,
-    title,
-    desc,
-    price,
-    totalProducts,
-    storeId,
-    userId,
-    productImage,
-  });
-
+  const { response, status } = await tryCatch(
+    async () =>
+      await storeService?.addProduct({
+        type,
+        title,
+        desc,
+        price,
+        totalProducts,
+        storeId,
+        userId,
+        productImage,
+      })
+  );
   res.json(response).status(status);
 };
 
@@ -92,9 +102,8 @@ const getProductsForStore = async (req, res) => {
   const { userId } = req.user;
   const query = req.query;
 
-  const { response, status } = await storeService.getProductsForStore(
-    userId,
-    query
+  const { response, status } = await tryCatch(
+    async () => await storeService.getProductsForStore(userId, query)
   );
 
   res.json(response).status(status);
@@ -104,11 +113,14 @@ const deleteProduct = async (req, res) => {
   const { productId, storeId } = req.params;
   const { userId } = req.user;
 
-  const { response, status } = await storeService?.deleteProduct({
-    productId,
-    storeId,
-    userId,
-  });
+  const { response, status } = await tryCatch(
+    async () =>
+      await storeService?.deleteProduct({
+        productId,
+        storeId,
+        userId,
+      })
+  );
 
   res.json(response).status(status);
 };
@@ -119,18 +131,20 @@ const updateProduct = async (req, res) => {
   const { storeId, productId } = req.params;
   const productImage = req.file;
 
-  const { response, status } = await storeService.updateProduct({
-    title,
-    desc,
-    previousUrl,
-    price,
-    type,
-    userId,
-    storeId,
-    productId,
-    productImage,
-  });
-
+  const { response, status } = await tryCatch(
+    async () =>
+      await storeService.updateProduct({
+        title,
+        desc,
+        previousUrl,
+        price,
+        type,
+        userId,
+        storeId,
+        productId,
+        productImage,
+      })
+  );
   res.json(response).status(status);
 };
 

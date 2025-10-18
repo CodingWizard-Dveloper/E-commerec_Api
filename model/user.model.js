@@ -7,37 +7,49 @@ const User = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   createdAt: { type: Date, required: true },
   updatedAt: { type: Date, default: Date.now(), required: false },
-  accessToken: { type: String, required: false, unique: false },
-  avatar: { type: JSON, required: false, unique: false },
-  role: { type: String, enum: ["admin", "user"], default: "user" },
+  accessToken: { type: String, required: false, default: null },
+  refreshToken: {type: String, required: false, default: null},
+  avatar: { type: JSON, required: false, default: null },
   storeId: { type: mongoose.Schema.Types.ObjectId, ref: "Store" },
+  orders: { type: [JSON], required: false, default: null },
+  Wishlist: { type: [JSON], required: false, default: null },
+  theme: {
+    type: String,
+    required: false,
+    enum: ["light", "dark"],
+    default: "light",
+  },
 });
 
 const Store = new mongoose.Schema({
   storeName: { type: String, required: true },
-  ownerId: { type: String, required: true, unique: true },
-  storeImage: { type: JSON, required: false },
+  ownerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    unique: true,
+  },
+  storeImage: { type: JSON, required: false, default: null },
   createdAt: { type: Date, required: true },
-  updatedAt: { type: Date, default: Date.now(), required: false },
+  updatedAt: { type: Date, default: new Date(), required: false },
   description: { type: String, required: true },
   type: {
     type: String,
     required: true,
     enum: ["electronics", "fashion", "living", "cosmetics", "books", "sports"],
   },
-  itemSelled: { type: Number, required: false },
-  totalRevenue: { type: Number, required: false },
-  customers: { type: JSON, required: false },
+  itemSelled: { type: Number, required: false, default: 0 },
+  totalRevenue: { type: Number, required: false, default: 0 },
+  customers: { type: JSON, required: false, default: 0 },
 });
 
 const products = new mongoose.Schema({
   title: { type: String, required: true },
   desc: { type: String, required: true, min: 6, max: 60 },
-  productImage: { type: JSON, required: false },
+  productImage: { type: JSON, required: false, default: null },
   createdAt: { type: Date, required: true },
   updatedAt: { type: Date, default: Date().now, required: false },
-  storeId: { type: String, required: true },
-  ownerId: { type: String, required: true },
+  storeId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  ownerId: { type: mongoose.Schema.Types.ObjectId, required: true },
   totalProducts: { type: Number, required: true },
   price: { type: Number, required: true },
   type: {
@@ -45,8 +57,9 @@ const products = new mongoose.Schema({
     required: true,
     enum: ["electronics", "fashion", "living", "cosmetics", "books", "sports"],
   },
-  itemSelled: { type: Number, required: false },
-  revenue: {type: Number, required: false, default: 0}
+  itemSelled: { type: Number, required: false, default: 0 },
+  revenue: { type: Number, required: false, default: 0 },
+  customers: { type: JSON, required: false, default: 0 },
 });
 
 User.pre("save", async function (next) {

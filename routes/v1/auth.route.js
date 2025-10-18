@@ -2,9 +2,7 @@ const {
   getUser,
   createUser,
   login,
-  createStore,
-  changeUser,
-  deleteStore,
+  editUser,
 } = require("../../validation/auth.validation");
 const validator = require("../../config/validator");
 const { authenticateToken } = require("../../config/Tokens");
@@ -23,9 +21,9 @@ router
   )
   .patch(
     authenticateToken,
-    validator(changeUser),
+    validator(editUser),
     upload.single("profileImage"),
-    authController.changeUser
+    authController.editUser
   );
 
 router.route("/login").post(validator(login), authController.loginUser);
